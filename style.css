@@ -101,30 +101,30 @@ body.hide-sidebars .ticker { visibility: hidden; }
 .cell .prize { font-size: clamp(0.95rem,1.6vw,2.05rem); font-weight: 800; color: #fff; line-height: 1.05; letter-spacing: 0.5px; text-shadow: 0 0 4px #000, 0 0 8px #13204f; }
 .cell .number { position: absolute; top: 4px; left: 6px; font-size: clamp(0.55rem,0.9vw,1.05rem); opacity: 0.9; font-weight: 700; text-shadow: 0 0 4px #000; }
 .cell.special { background: linear-gradient(160deg,#312300,#1d1400 55%); border: 1px solid #c79300; box-shadow: var(--special-glow); }
-.cell.special .prize { background: var(--gold); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 0 6px #ffde6f, 0 0 18px #ff9f0f77, 0 0 28px #ffcf3b55; position: relative; }
+/* Special prize base golden text styling */
+.cell.special .prize { background: var(--gold); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 0 6px #ffde6f, 0 0 18px #ff9f0f77, 0 0 28px #ffcf3b55; position: relative; overflow: visible; }
 /* Gold shimmer + sparkles (only when NOT claimed) */
-.cell.special:not(.claimed) .prize::after { content:""; position:absolute; inset:0; background:
-  linear-gradient(120deg, transparent 0%, rgba(255,255,255,0) 35%, rgba(255,255,255,0.25) 44%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.25) 56%, rgba(255,255,255,0) 65%, transparent 100%);
-  background-size: 220% 100%;
-  mix-blend-mode: screen; pointer-events:none; filter: drop-shadow(0 0 4px #fff6d0) drop-shadow(0 0 10px #ffcf3b88);
-  animation: goldShine 5.2s linear infinite;
-}
+/* Sparkles anchored to prize text (still relative to text for subtlety) */
 .cell.special:not(.claimed) .prize::before { content:""; position:absolute; top:-35%; left:-25%; width:150%; height:170%; pointer-events:none; mix-blend-mode: screen; background:
-  radial-gradient(circle at 18% 32%, rgba(255,255,210,0.9) 0 6%, transparent 7%) ,
-  radial-gradient(circle at 72% 38%, rgba(255,240,160,0.85) 0 5%, transparent 6%) ,
-  radial-gradient(circle at 54% 78%, rgba(255,228,120,0.8) 0 4%, transparent 5%) ,
-  radial-gradient(circle at 32% 70%, rgba(255,255,255,0.75) 0 3%, transparent 4%) ,
+  radial-gradient(circle at 18% 32%, rgba(255,255,210,0.9) 0 6%, transparent 7%),
+  radial-gradient(circle at 72% 38%, rgba(255,240,160,0.85) 0 5%, transparent 6%),
+  radial-gradient(circle at 54% 78%, rgba(255,228,120,0.8) 0 4%, transparent 5%),
+  radial-gradient(circle at 32% 70%, rgba(255,255,255,0.75) 0 3%, transparent 4%),
   radial-gradient(circle at 85% 65%, rgba(255,210,90,0.6) 0 4%, transparent 5%);
-  filter: drop-shadow(0 0 2px #ffe770) drop-shadow(0 0 6px #ffcf3b); opacity:0.55;
-  animation: sparkleTwinkle 6s ease-in-out infinite;
-}
+  filter: drop-shadow(0 0 2px #ffe770) drop-shadow(0 0 6px #ffcf3b); opacity:0.55; animation: sparkleTwinkle 6s ease-in-out infinite; }
+/* Wide sheen now covers entire cell to avoid visible rectangle edges */
+.cell.special:not(.claimed)::after { content:""; position:absolute; top:-15%; left:-60%; width:220%; height:130%; pointer-events:none; background:
+  linear-gradient(115deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 42%, rgba(255,255,255,0.85) 50%, rgba(255,255,255,0) 58%, rgba(255,255,255,0) 100%);
+  background-size: 250% 100%; mix-blend-mode: screen; filter: drop-shadow(0 0 6px #ffefb1) drop-shadow(0 0 16px #ffcf3baa);
+  animation: goldShineSweep 5.2s linear infinite; }
 /* Stagger sparkle animations for variety */
 .board .cell.special:nth-child(3n) .prize::before { animation-delay: 1.2s; }
 .board .cell.special:nth-child(4n) .prize::before { animation-delay: 2.4s; }
 .board .cell.special:nth-child(5n) .prize::before { animation-delay: 3.1s; }
 .board .cell.special:nth-child(7n) .prize::before { animation-delay: 0.6s; }
 
-@keyframes goldShine { 0% { background-position: -30% 0; } 55% { background-position: 130% 0; } 55.0001% { background-position: -30% 0; } 100% { background-position: -30% 0; } }
+/* Single directional sweep then reset (appears as periodic shine) */
+@keyframes goldShineSweep { 0% { background-position: -30% 0; } 55% { background-position: 130% 0; } 55.0001% { background-position: -30% 0; } 100% { background-position: -30% 0; } }
 @keyframes sparkleTwinkle {
   0%, 100% { opacity:0.4; transform:scale(1); }
   15% { opacity:0.9; transform:scale(1.05); }
@@ -135,11 +135,11 @@ body.hide-sidebars .ticker { visibility: hidden; }
 }
 /* Disable shimmer on claimed specials */
 .cell.claimed.special .prize::before,
-.cell.claimed.special .prize::after { display:none !important; animation:none !important; }
+.cell.claimed.special::after { display:none !important; animation:none !important; }
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .cell.special .prize::before,
-  .cell.special .prize::after { animation:none !important; opacity:0.7; }
+  .cell.special::after { animation:none !important; opacity:0.7; }
 }
 .cell.claimed { filter: grayscale(0.6) brightness(0.5); }
 .cell .claim-overlay { position: absolute; inset: 0; pointer-events: none; opacity: 0; }
