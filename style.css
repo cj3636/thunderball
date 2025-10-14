@@ -52,9 +52,9 @@ body.light-theme .cell .claim-overlay::after {
 }
 
 /* Light theme value tier overrides */
-body.light-theme .cell.value-tier-1:not(.special) .prize { color:#3c5d89; }
-body.light-theme .cell.value-tier-2:not(.special) .prize { color:#0e6fa1; }
-body.light-theme .cell.value-tier-3:not(.special) .prize { color:#1b7d55; }
+body.light-theme .cell.value-tier-1:not(.special) .prize { color:#3c5d89; text-shadow:0 0 5px #3c5d8980,0 0 10px #3c5d8955; }
+body.light-theme .cell.value-tier-2:not(.special) .prize { color:#0e6fa1; text-shadow:0 0 5px #0e6fa180,0 0 12px #0e6fa155; }
+body.light-theme .cell.value-tier-3:not(.special) .prize { color:#1b7d55; text-shadow:0 0 5px #1b7d5580,0 0 12px #1b7d5555; }
   body.light-theme .cell.value-tier-4:not(.special) .prize { color:#7a5200; text-shadow:0 0 6px #7a520080,0 0 14px #7a520055; }
   body.light-theme .cell.value-tier-5:not(.special) .prize { color:#b54700; text-shadow:0 0 6px #b5470080,0 0 14px #b5470055; }
   body.light-theme .cell.value-tier-6:not(.special) .prize { color:#b10000; text-shadow:0 0 6px #b1000080,0 0 14px #b1000055; }
