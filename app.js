@@ -24,7 +24,7 @@
   const panelEl = document.getElementById('managementPanel');
   const btnAdvanceDay = document.getElementById('btnAdvanceDay');
   const btnResetDay = document.getElementById('btnResetDay');
-  const btnToggleHeader = document.getElementById('btnToggleHeader');
+  const btnToggleSidebar = document.getElementById('btnToggleHeader');
   const btnToggleTheme = document.getElementById('btnToggleTheme');
   const btnDownloadState = document.getElementById('btnDownloadState');
   const btnRestoreDefault = document.getElementById('btnRestoreDefault');
@@ -300,10 +300,10 @@
   function clearStorage(){
     if (!confirm('Clear local storage and reset?')) return;
     localStorage.removeItem(STORAGE_KEY);
-    init();
+    window.location.reload();
   }
 
-  function toggleHeader(){ // repurposed: toggle sidebars
+  function toggleSidebar(){ // repurposed: toggle sidebars
     document.body.classList.toggle('hide-sidebars');
     saveState();
   }
@@ -328,7 +328,7 @@
     inputIncrement.addEventListener('change', ()=>updateIncrement(inputIncrement.value));
     btnAdvanceDay.addEventListener('click', ()=>updateDay(state.day + 1));
     btnResetDay.addEventListener('click', ()=>updateDay(1));
-    btnToggleHeader.addEventListener('click', toggleHeader);
+    btnToggleSidebar.addEventListener('click', toggleSidebar);
     btnToggleTheme.addEventListener('click', toggleTheme);
     btnDownloadState.addEventListener('click', downloadStateCSV);
     btnRestoreDefault.addEventListener('click', restoreDefault);
@@ -339,7 +339,7 @@
 
     document.addEventListener('keydown', e=>{
       if (e.key === '`') { togglePanel(); }
-      if (e.key === 'h'){ toggleHeader(); }
+      if (e.key === 'h'){ toggleSidebar(); }
     });
   }
 
