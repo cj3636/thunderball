@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Thunderball Promo</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app" class="app">
+    <!-- Hidden live region for day updates -->
+    <span id="dayIndicator" class="visually-hidden" aria-live="polite">Day 1</span>
+
+    <main class="board-wrapper" id="boardWrapper">
+      <div id="leftTicker" class="ticker ticker-left" aria-hidden="false">
+        <div class="ticker-track" id="leftTickerTrack"></div>
+      </div>
+      <div class="board-container">
+        <div id="bingoBoard" class="board" aria-label="Thunderball Prize Board"></div>
+      </div>
+      <div id="rightTicker" class="ticker ticker-right" aria-hidden="false">
+        <div class="ticker-track" id="rightTickerTrack"></div>
+      </div>
+    </main>
+
+    <div id="managementPanel" class="mgmt-panel hidden" aria-hidden="true">
+      <div class="panel-inner">
+        <h2>Management Panel</h2>
+        <div class="panel-grid">
+          <section>
+            <h3>Promo Settings</h3>
+            <label>Current Day
+              <input type="number" id="inputDay" min="1" value="1" />
+            </label>
+            <label>Special Daily Increment ($)
+              <input type="number" id="inputIncrement" min="0" value="25" />
+            </label>
+            <div class="buttons-row">
+              <button id="btnAdvanceDay" type="button">Advance Day</button>
+              <button id="btnResetDay" type="button">Reset Day</button>
+            </div>
+            <div class="buttons-row">
+              <button id="btnToggleHeader" type="button">Toggle Sidebars (h)</button>
+              <button id="btnToggleTheme" type="button">Toggle Theme</button>
+            </div>
+          </section>
+          <section>
+            <h3>Claimed Prizes</h3>
+            <div id="claimedGrid" class="claimed-grid" aria-label="Claimed Prizes Grid of Checkboxes"></div>
+          </section>
+          <section>
+            <h3>Backup / Restore</h3>
+            <div class="buttons-col">
+              <button id="btnDownloadState" type="button">Download Current State CSV</button>
+              <label class="file-upload">Upload CSV
+                <input id="fileUpload" type="file" accept=".csv" />
+              </label>
+              <button id="btnRestoreDefault" type="button">Restore Default CSV</button>
+              <button id="btnClearStorage" type="button">Clear Local Storage</button>
+            </div>
+          </section>
+          <section>
+            <h3>Stats</h3>
+            <div id="statsContainer" class="stats"></div>
+          </section>
+        </div>
+        <p class="hint">Press ` (grave/tilde) to close panel. All changes auto-save.</p>
+      </div>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
