@@ -56,8 +56,8 @@ body.light-theme .cell.value-tier-1:not(.special) .prize { color:#3c5d89; }
 body.light-theme .cell.value-tier-2:not(.special) .prize { color:#0e6fa1; }
 body.light-theme .cell.value-tier-3:not(.special) .prize { color:#1b7d55; }
 body.light-theme .cell.value-tier-4:not(.special) .prize { color:#916000; text-shadow:0 0 2px #fff2c0,0 0 6px #ffe59c; }
-body.light-theme .cell.value-tier-5:not(.special) .prize { color:#a64b00; }
-body.light-theme .cell.value-tier-6:not(.special) .prize { color:#b60000; }
+body.light-theme .cell.value-tier-5:not(.special) .prize { color:#a64b00; text-shadow:0 0 4px #ffcf8caa,0 0 10px #ffcf8c66; }
+body.light-theme .cell.value-tier-6:not(.special) .prize { color:#b60000; text-shadow:0 0 4px #ff7a7a99,0 0 10px #ff7a7a55; }
 body.light-theme .cell.value-tier-7:not(.special) .prize { color:#9c0079; }
 body.light-theme .cell.value-tier-8:not(.special) .prize { color:#253548; text-shadow:0 0 4px #ffffff,0 0 12px #ffdf8c; }
 
@@ -116,8 +116,8 @@ body.hide-sidebars .ticker { visibility: hidden; }
 .cell.value-tier-2:not(.special) .prize { color:#7fd9ff; }
 .cell.value-tier-3:not(.special) .prize { color:#7fffc4; }
 .cell.value-tier-4:not(.special) .prize { color:#ffe06b; text-shadow:0 0 4px #7a5200,0 0 10px #302400; }
-.cell.value-tier-5:not(.special) .prize { color:#ffb347; text-shadow:0 0 4px #592d00,0 0 10px #2d1400; }
-.cell.value-tier-6:not(.special) .prize { color:#ff6262; text-shadow:0 0 4px #5c0000,0 0 12px #2d0000; }
+.cell.value-tier-5:not(.special) .prize { color:#ffb347; text-shadow:0 0 6px #ffb347aa, 0 0 14px #ffb34755; }
+.cell.value-tier-6:not(.special) .prize { color:#ff6262; text-shadow:0 0 6px #ff6262aa, 0 0 14px #ff626255; }
 .cell.value-tier-7:not(.special) .prize { color:#ff3bd5; text-shadow:0 0 6px #5b0047,0 0 14px #310022; }
 .cell.value-tier-8:not(.special) .prize { color:#ffffff; text-shadow:0 0 8px #fffbf0,0 0 18px #f5d85b; }
 
