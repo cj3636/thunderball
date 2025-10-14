@@ -79,9 +79,9 @@ button:hover, .file-upload:hover { background: linear-gradient(135deg,#315588,#1
 button:active { transform: scale(0.95); }
 .file-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .claimed-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; max-width: 520px; }
-.claimed-grid label { position: relative; background: #0f172d; border: 1px solid #2d4472; border-radius: 6px; padding: 8px 4px 9px; font-size: 0.9rem; text-align: center; cursor: pointer; font-weight: 600; letter-spacing: 0.5px; transition: background 0.25s, color 0.25s, transform 0.15s; }
+.claimed-grid label { position: relative; background: #0f172d; border: 1px solid #2d4472; border-radius: 6px; padding: 0; font-size: 0.95rem; cursor: pointer; font-weight: 600; letter-spacing: 0.5px; transition: background 0.25s, color 0.25s, transform 0.15s; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; line-height: 1; }
 .claimed-grid label input { display: none; }
-.claimed-grid label span { display: block; }
+.claimed-grid label span { display: inline-block; line-height: 1; }
 .claimed-grid label.checked { background: #2d3f70; color: #94ffdf; box-shadow: 0 0 0 2px #2d3f70aa inset, 0 0 6px #2d3f70; }
 .claimed-grid label:active { transform: scale(0.9); }
 .stats { font-size: 0.95rem; line-height: 1.3rem; display: flex; flex-direction: column; gap: 6px; margin-top: 6px; font-weight: 500; }
