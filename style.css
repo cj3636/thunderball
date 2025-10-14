@@ -17,9 +17,65 @@ body { font-family: 'Rajdhani', sans-serif; background: radial-gradient(circle a
   --panel-border: #2d3f70;
   --gold: linear-gradient(145deg,#ffef9f,#ffd955 30%,#ffbb22 60%,#ffe174);
 }
-body.light-theme { background: linear-gradient(135deg,#f3f7ff,#d9e4ff); color: #101524; }
-body.light-theme .board { background: #ffffff0d; }
-body.light-theme .cell { background: #f5f8ff20; }
+/* ===== Enhanced Light Theme ===== */
+body.light-theme { 
+  background: radial-gradient(circle at 50% 45%, #ffffff 0%, #eef3fa 55%, #dbe4f1 85%);
+  color: #142135; 
+}
+body.light-theme .board { 
+  background: linear-gradient(140deg,#ffffff,#f2f6fc 55%,#e3ebf7);
+  box-shadow: 0 0 0 2px #c3d2e6, 0 6px 18px -4px #93a6bd, 0 0 32px #d5e2f2 inset; 
+}
+body.light-theme .cell { 
+  background: linear-gradient(180deg,#f9fbfe,#e9f1fb 55%,#d9e4f2);
+  border: 1px solid #c3d2e6; 
+  box-shadow: 0 2px 4px #b8c8da, 0 0 0 1px #d9e5f2 inset; 
+}
+body.light-theme .cell:hover { box-shadow: 0 4px 10px -2px #9ab2cc, 0 0 0 1px #b9cadb inset; }
+body.light-theme .cell .prize { 
+  color: #14324f; 
+  text-shadow: 0 1px 0 #ffffffcc, 0 0 6px #ffffff; 
+}
+body.light-theme .cell .number { color: #365875; text-shadow: 0 1px 0 #ffffffcc; }
+body.light-theme .cell.special { 
+  background: linear-gradient(165deg,#fff6dc,#ffe6a8 50%,#ffd46a); 
+  border-color: #e0b038; box-shadow: 0 0 0 2px #f6d37a88, 0 0 18px 4px #ffdd8caa, 0 4px 14px -4px #c29a2d; 
+}
+body.light-theme .cell.special .prize { 
+  text-shadow: 0 0 4px #fff2c0, 0 0 10px #ffe8a8; 
+}
+body.light-theme .cell.claimed { filter: grayscale(0.55) brightness(0.65); }
+body.light-theme .cell .claim-overlay::before,
+body.light-theme .cell .claim-overlay::after { 
+  background: linear-gradient(180deg,#ff5a5a,#ff2a2a 55%,#d00000); 
+  filter: drop-shadow(0 0 4px #ff4242) drop-shadow(0 0 10px #ff0000aa); 
+}
+
+/* Light theme value tier overrides */
+body.light-theme .cell.value-tier-1:not(.special) .prize { color:#3c5d89; }
+body.light-theme .cell.value-tier-2:not(.special) .prize { color:#0e6fa1; }
+body.light-theme .cell.value-tier-3:not(.special) .prize { color:#1b7d55; }
+body.light-theme .cell.value-tier-4:not(.special) .prize { color:#916000; text-shadow:0 0 2px #fff2c0,0 0 6px #ffe59c; }
+body.light-theme .cell.value-tier-5:not(.special) .prize { color:#a64b00; }
+body.light-theme .cell.value-tier-6:not(.special) .prize { color:#b60000; }
+body.light-theme .cell.value-tier-7:not(.special) .prize { color:#9c0079; }
+body.light-theme .cell.value-tier-8:not(.special) .prize { color:#253548; text-shadow:0 0 4px #ffffff,0 0 12px #ffdf8c; }
+
+/* Management panel light variant refinement */
+body.light-theme .mgmt-panel .panel-inner { 
+  background: #fffffffb; 
+  border-color: #c2d4e6; 
+  box-shadow: 0 4px 18px -6px #9eb2c8, 0 0 0 1px #d8e6f3; 
+}
+body.light-theme button { 
+  background: linear-gradient(135deg,#ffffff,#e3edf7); 
+  color: #1e3a55; 
+  border-color: #b1c6da; 
+  box-shadow: 0 2px 4px #b8c8d8, 0 0 0 1px #dce7f2 inset; 
+}
+body.light-theme button:hover { background: linear-gradient(135deg,#ffffff,#f0f6fb); }
+body.light-theme .claimed-grid label { background:#eef4fb; border-color:#c3d7ea; }
+body.light-theme .claimed-grid label.checked { background:#3a5d86; color:#e9fff8; box-shadow:0 0 0 2px #3a5d86 inset,0 0 6px #3a5d86aa; }
 
 /* Vertical ticker sidebars (flex fill) */
 .board-wrapper { display: flex; align-items: center; width: 100%; height: 100vh; padding: 4px 0 18px; }
