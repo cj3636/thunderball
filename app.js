@@ -350,7 +350,9 @@
       if (e.key === '`') { togglePanel(); }
       if (e.key === 'h'){ toggleSidebar(); }
       if (e.key === 't'){ // optional manual trigger using last claimed
-        if (lastClaimedPrize){ playThunderStrike(lastClaimedPrize); }
+        if (lastClaimedPrize) {
+          playThunderStrike(lastClaimedPrize);
+        }
       }
     });
   }
@@ -433,6 +435,7 @@
     if (!thunderStrikeEl) return;
     // If already active, reset
     thunderStrikeEl.classList.remove('active');
+    thunderStrikeEl.classList.remove('hidden');
     void thunderStrikeEl.offsetWidth; // force reflow to restart animation
     strikeValueEl.textContent = formatCurrency(computeDisplayPrize(prize));
     thunderStrikeEl.setAttribute('aria-hidden','false');
@@ -441,6 +444,7 @@
     setTimeout(()=>{
       thunderStrikeEl.classList.remove('active');
       thunderStrikeEl.setAttribute('aria-hidden','true');
+      thunderStrikeEl.classList.add('hidden');
     }, 1900);
   }
 

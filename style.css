@@ -226,25 +226,26 @@ button:active { transform: scale(0.95); }
 
 /* === Thunder Strike Fullscreen Claim Animation === */
 .thunder-strike { position: fixed; inset:0; z-index:120; display:flex; align-items:center; justify-content:center; pointer-events:none; background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 70%); overflow:hidden; }
+.thunder-strike.hidden { display:none !important; }
 .thunder-strike.active { animation: strikeFade 1.85s ease forwards; }
 @keyframes strikeFade { 0% { background: rgba(255,255,255,0); } 10% { background: rgba(255,255,255,0.25); } 35% { background: rgba(255,255,255,0.08);} 70% { background: rgba(255,255,255,0.04);} 100% { background: rgba(255,255,255,0);} }
 
-.thunder-strike .strike-beam { position:absolute; top:-10%; left:50%; width:6px; height:120%; background: linear-gradient(180deg,#ffffff,#ffe9a6 25%,#ffd955 45%,#ffbf22 65%,#ffffff 85%, #ffffff00); transform:translateX(-50%); box-shadow:0 0 18px 6px #fff,0 0 42px 12px #ffd955cc; animation: beamPulse 1.2s ease-out forwards; }
+.thunder-strike .strike-beam { position:absolute; top:-10%; left:50%; width:6px; height:120%; background: linear-gradient(180deg,#ffffff,#ffe9a6 25%,#ffd955 45%,#ffbf22 65%,#ffffff 85%, #ffffff00); transform:translateX(-50%); box-shadow:0 0 18px 6px #fff,0 0 42px 12px #ffd955cc; opacity:0; }
 @keyframes beamPulse { 0% { opacity:0; transform:translateX(-50%) scaleY(0.1); } 15% { opacity:1; transform:translateX(-50%) scaleY(1.05);} 45% { opacity:0.95; } 70% { opacity:0.5; } 100% { opacity:0; } }
 
 .strike-fork { position:absolute; top:0; left:50%; width:140px; height:100%; background: repeating-linear-gradient(180deg, rgba(255,255,255,0.85) 0 6px, rgba(255,255,255,0) 6px 12px); mix-blend-mode:screen; filter: drop-shadow(0 0 10px #fff); opacity:0; }
-.strike-fork.fork-left { transform:translate(-50%,0) rotate(-18deg); animation: forkLeft 1.5s ease-out forwards; }
-.strike-fork.fork-right { transform:translate(-50%,0) rotate(18deg); animation: forkRight 1.5s ease-out forwards; }
+.strike-fork.fork-left { transform:translate(-50%,0) rotate(-18deg); }
+.strike-fork.fork-right { transform:translate(-50%,0) rotate(18deg); }
 @keyframes forkLeft { 0% { opacity:0; } 20% { opacity:1; } 55% { opacity:0.4; } 100% { opacity:0; } }
 @keyframes forkRight { 0% { opacity:0; } 20% { opacity:1; } 55% { opacity:0.4; } 100% { opacity:0; } }
 
-.strike-flash { position:absolute; inset:0; background: radial-gradient(circle at 50% 55%, #ffffff 0%, rgba(255,255,255,0.4) 22%, rgba(255,255,255,0) 60%); opacity:0; animation: flashBurst 0.9s ease-out forwards; }
+.strike-flash { position:absolute; inset:0; background: radial-gradient(circle at 50% 55%, #ffffff 0%, rgba(255,255,255,0.4) 22%, rgba(255,255,255,0) 60%); opacity:0; }
 @keyframes flashBurst { 0% { opacity:0; } 10% { opacity:1; } 40% { opacity:0.6; } 80% { opacity:0.15; } 100% { opacity:0; } }
 
 .strike-content { position:relative; display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center; transform:translateY(12px); }
-.strike-title { font-family:'Orbitron',sans-serif; font-size: clamp(2.4rem,5vw,4.2rem); letter-spacing:6px; font-weight:800; background: linear-gradient(120deg,#ffe9a6,#ffd955,#ffbf22,#fff4d4); -webkit-background-clip:text; background-clip:text; color:transparent; filter: drop-shadow(0 0 12px #fff2) drop-shadow(0 0 24px #ffd955aa); opacity:0; animation: titlePop 1.4s cubic-bezier(.24,.9,.32,1.2) forwards; }
+.strike-title { font-family:'Orbitron',sans-serif; font-size: clamp(2.4rem,5vw,4.2rem); letter-spacing:6px; font-weight:800; background: linear-gradient(120deg,#ffe9a6,#ffd955,#ffbf22,#fff4d4); -webkit-background-clip:text; background-clip:text; color:transparent; filter: drop-shadow(0 0 12px #fff2) drop-shadow(0 0 24px #ffd955aa); opacity:0; }
 @keyframes titlePop { 0% { opacity:0; transform:scale(.6) translateY(40px); letter-spacing:16px; } 25% { opacity:1; transform:scale(1.12) translateY(-6px); } 55% { transform:scale(.94) translateY(0); } 70% { transform:scale(1.02); } 100% { opacity:1; transform:scale(1); } }
-.strike-value { font-size: clamp(1.6rem,3.6vw,3rem); font-weight:700; color:#fff; text-shadow:0 0 10px #fff,0 0 24px #ffd955,0 0 36px #ffbf22; opacity:0; animation: valueReveal 1.6s ease-out forwards; }
+.strike-value { font-size: clamp(1.6rem,3.6vw,3rem); font-weight:700; color:#fff; text-shadow:0 0 10px #fff,0 0 24px #ffd955,0 0 36px #ffbf22; opacity:0; }
 @keyframes valueReveal { 0% { opacity:0; transform:translateY(32px) scale(.85); } 30% { opacity:1; transform:translateY(-8px) scale(1.08); } 55% { transform:translateY(0) scale(.96); } 80% { transform:translateY(0) scale(1.02); } 100% { opacity:1; transform:translateY(0) scale(1); } }
 
 /* Reduced motion fallback */
@@ -256,3 +257,11 @@ button:active { transform: scale(0.95); }
   .strike-title,
   .strike-value { animation:none !important; opacity:1 !important; }
 }
+
+/* Activate child animations only when container has .active */
+.thunder-strike.active .strike-beam { animation: beamPulse 1.2s ease-out forwards; }
+.thunder-strike.active .strike-fork.fork-left { animation: forkLeft 1.5s ease-out forwards; }
+.thunder-strike.active .strike-fork.fork-right { animation: forkRight 1.5s ease-out forwards; }
+.thunder-strike.active .strike-flash { animation: flashBurst 0.9s ease-out forwards; }
+.thunder-strike.active .strike-title { animation: titlePop 1.4s cubic-bezier(.24,.9,.32,1.2) forwards; }
+.thunder-strike.active .strike-value { animation: valueReveal 1.6s ease-out forwards; }
