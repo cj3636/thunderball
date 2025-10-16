@@ -34,6 +34,9 @@
   // Sidebar ticker elements
   const leftTickerTrack = document.getElementById('leftTickerTrack');
   const rightTickerTrack = document.getElementById('rightTickerTrack');
+  const thunderStrikeEl = document.getElementById('thunderStrike');
+  const strikeValueEl = document.getElementById('strikeValue');
+  let lastClaimedPrize = null; // store last claimed prize object for optional trigger
 
   function log(...args){ console.log('[Thunderball]', ...args); }
 
@@ -176,6 +179,7 @@
   function toggleClaim(number){
     const prize = state.prizes.find(p=>p.number===number);
     if (!prize) return;
+    const wasClaimed = prize.isClaimed;
     prize.isClaimed = !prize.isClaimed;
     prize.claimDay = prize.isClaimed ? state.day : null;
     saveState();
@@ -183,6 +187,11 @@
     updateClaimedGridCheckbox(number, prize.isClaimed);
     updateStats();
     refreshTickerDays();
+    // Trigger thunder strike only when transitioning to claimed (not when unclaiming)
+    if (!wasClaimed && prize.isClaimed){
+      lastClaimedPrize = prize;
+      playThunderStrike(prize);
+    }
   }
 
   function buildClaimedGrid(){
@@ -340,6 +349,9 @@
     document.addEventListener('keydown', e=>{
       if (e.key === '`') { togglePanel(); }
       if (e.key === 'h'){ toggleSidebar(); }
+      if (e.key === 't'){ // optional manual trigger using last claimed
+        if (lastClaimedPrize){ playThunderStrike(lastClaimedPrize); }
+      }
     });
   }
 
@@ -414,6 +426,22 @@
     document.querySelectorAll('.ticker-item .day-text').forEach(el=>{
       el.textContent = 'Day ' + state.day;
     });
+  }
+
+  // Thunder strike animation logic
+  function playThunderStrike(prize){
+    if (!thunderStrikeEl) return;
+    // If already active, reset
+    thunderStrikeEl.classList.remove('active');
+    void thunderStrikeEl.offsetWidth; // force reflow to restart animation
+    strikeValueEl.textContent = formatCurrency(computeDisplayPrize(prize));
+    thunderStrikeEl.setAttribute('aria-hidden','false');
+    thunderStrikeEl.classList.add('active');
+    // Auto hide after animation duration
+    setTimeout(()=>{
+      thunderStrikeEl.classList.remove('active');
+      thunderStrikeEl.setAttribute('aria-hidden','true');
+    }, 1900);
   }
 
   loadTheme();
