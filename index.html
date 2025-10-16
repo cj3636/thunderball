@@ -28,10 +28,18 @@
 
     <!-- Thunder Strike Animation Overlay -->
     <div id="thunderStrike" class="thunder-strike hidden" aria-hidden="true" role="alert" aria-live="assertive">
-      <div class="strike-beam"></div>
-      <div class="strike-fork fork-left"></div>
-      <div class="strike-fork fork-right"></div>
       <div class="strike-flash"></div>
+      <svg class="bolt-svg" viewBox="0 0 200 600" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <!-- Main bolt path -->
+        <path class="bolt-main" d="M110 0 L95 120 L125 180 L80 260 L140 340 L95 420 L120 500 L100 600" />
+        <!-- Branches -->
+        <path class="bolt-branch" d="M95 120 L60 170 L90 190" />
+        <path class="bolt-branch" d="M125 180 L160 230 L130 250" />
+        <path class="bolt-branch" d="M80 260 L50 310 L85 330" />
+        <path class="bolt-branch" d="M140 340 L170 390 L135 410" />
+        <path class="bolt-branch" d="M95 420 L65 470 L105 485" />
+        <path class="bolt-branch" d="M120 500 L155 545 L115 560" />
+      </svg>
       <div class="strike-content">
         <h1 class="strike-title">THUNDERBALL</h1>
         <div class="strike-value" id="strikeValue"></div>

@@ -230,14 +230,19 @@ button:active { transform: scale(0.95); }
 .thunder-strike.active { animation: strikeFade 1.85s ease forwards; }
 @keyframes strikeFade { 0% { background: rgba(255,255,255,0); } 10% { background: rgba(255,255,255,0.25); } 35% { background: rgba(255,255,255,0.08);} 70% { background: rgba(255,255,255,0.04);} 100% { background: rgba(255,255,255,0);} }
 
-.thunder-strike .strike-beam { position:absolute; top:-10%; left:50%; width:6px; height:120%; background: linear-gradient(180deg,#ffffff,#ffe9a6 25%,#ffd955 45%,#ffbf22 65%,#ffffff 85%, #ffffff00); transform:translateX(-50%); box-shadow:0 0 18px 6px #fff,0 0 42px 12px #ffd955cc; opacity:0; }
-@keyframes beamPulse { 0% { opacity:0; transform:translateX(-50%) scaleY(0.1); } 15% { opacity:1; transform:translateX(-50%) scaleY(1.05);} 45% { opacity:0.95; } 70% { opacity:0.5; } 100% { opacity:0; } }
-
-.strike-fork { position:absolute; top:0; left:50%; width:140px; height:100%; background: repeating-linear-gradient(180deg, rgba(255,255,255,0.85) 0 6px, rgba(255,255,255,0) 6px 12px); mix-blend-mode:screen; filter: drop-shadow(0 0 10px #fff); opacity:0; }
-.strike-fork.fork-left { transform:translate(-50%,0) rotate(-18deg); }
-.strike-fork.fork-right { transform:translate(-50%,0) rotate(18deg); }
-@keyframes forkLeft { 0% { opacity:0; } 20% { opacity:1; } 55% { opacity:0.4; } 100% { opacity:0; } }
-@keyframes forkRight { 0% { opacity:0; } 20% { opacity:1; } 55% { opacity:0.4; } 100% { opacity:0; } }
+/* Lightning bolt SVG styling */
+.bolt-svg { position:absolute; top:0; left:50%; transform:translateX(-50%); width: clamp(140px,14vw,220px); height:100%; overflow:visible; filter: drop-shadow(0 0 14px #fff) drop-shadow(0 0 34px #ffe68c) drop-shadow(0 0 54px #ffbe2a); }
+.bolt-svg path { fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.bolt-main { stroke:#fff; stroke-width:11; stroke-dasharray: 0 1200; filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 18px #ffe68c) drop-shadow(0 0 28px #ffbe2a); }
+.bolt-branch { stroke:#fff; stroke-width:7; stroke-dasharray:0 400; filter: drop-shadow(0 0 4px #fff) drop-shadow(0 0 12px #ffe68c); opacity:0; }
+/* Animated gradients flicker layer */
+.bolt-svg::after { content:""; position:absolute; inset:0; background:radial-gradient(circle at 50% 20%, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.2) 35%, rgba(255,255,255,0) 70%); mix-blend-mode:screen; opacity:0; animation: boltFlash 1.6s ease-out forwards; }
+@keyframes boltFlash { 0% { opacity:0; } 8% { opacity:1; } 40% { opacity:0.55; } 75% { opacity:0.15; } 100% { opacity:0; } }
+@keyframes boltDraw { 0% { stroke-dasharray: 0 1200; } 18% { stroke-dasharray: 220 980; } 35% { stroke-dasharray: 520 680; } 52% { stroke-dasharray: 820 380; } 70% { stroke-dasharray: 1020 180; } 85% { stroke-dasharray: 1200 0; } 100% { stroke-dasharray: 1200 0; }
+}
+@keyframes branchDraw { 0% { stroke-dasharray:0 400; opacity:0; } 30% { stroke-dasharray:120 280; opacity:1; } 55% { stroke-dasharray:260 140; opacity:.9; } 75% { stroke-dasharray:340 60; opacity:.55; } 100% { stroke-dasharray:400 0; opacity:0.35; } }
+@keyframes boltFlicker { 0%, 15% { filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 28px #ffe68c) drop-shadow(0 0 48px #ffbe2a); } 22% { filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 18px #ffe68c) drop-shadow(0 0 32px #ffbe2a); } 38% { filter: drop-shadow(0 0 14px #fff) drop-shadow(0 0 40px #ffe68c) drop-shadow(0 0 60px #ffbe2a); } 60% { filter: drop-shadow(0 0 5px #fff) drop-shadow(0 0 12px #ffe68c) drop-shadow(0 0 20px #ffbe2a); } 82% { filter: drop-shadow(0 0 9px #fff) drop-shadow(0 0 24px #ffe68c) drop-shadow(0 0 36px #ffbe2a); } 100% { filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 6px #ffe68c) drop-shadow(0 0 14px #ffbe2a); }
+}
 
 .strike-flash { position:absolute; inset:0; background: radial-gradient(circle at 50% 55%, #ffffff 0%, rgba(255,255,255,0.4) 22%, rgba(255,255,255,0) 60%); opacity:0; }
 @keyframes flashBurst { 0% { opacity:0; } 10% { opacity:1; } 40% { opacity:0.6; } 80% { opacity:0.15; } 100% { opacity:0; } }
@@ -259,9 +264,8 @@ button:active { transform: scale(0.95); }
 }
 
 /* Activate child animations only when container has .active */
-.thunder-strike.active .strike-beam { animation: beamPulse 1.2s ease-out forwards; }
-.thunder-strike.active .strike-fork.fork-left { animation: forkLeft 1.5s ease-out forwards; }
-.thunder-strike.active .strike-fork.fork-right { animation: forkRight 1.5s ease-out forwards; }
-.thunder-strike.active .strike-flash { animation: flashBurst 0.9s ease-out forwards; }
+.thunder-strike.active .bolt-main { animation: boltDraw 1.6s ease-out forwards, boltFlicker 1.6s linear forwards; }
+.thunder-strike.active .bolt-branch { animation: branchDraw 1.4s ease-out forwards; }
+.thunder-strike.active .strike-flash { animation: flashBurst 1.2s ease-out forwards; }
 .thunder-strike.active .strike-title { animation: titlePop 1.4s cubic-bezier(.24,.9,.32,1.2) forwards; }
 .thunder-strike.active .strike-value { animation: valueReveal 1.6s ease-out forwards; }

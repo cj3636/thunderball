@@ -437,6 +437,13 @@
     thunderStrikeEl.classList.remove('active');
     thunderStrikeEl.classList.remove('hidden');
     void thunderStrikeEl.offsetWidth; // force reflow to restart animation
+    // Reset SVG stroke-dasharray by forcing reflow of paths
+    const boltPaths = thunderStrikeEl.querySelectorAll('.bolt-main, .bolt-branch');
+    boltPaths.forEach(p=>{
+      p.style.animation = 'none';
+      void p.offsetWidth;
+      p.style.animation = '';
+    });
     strikeValueEl.textContent = formatCurrency(computeDisplayPrize(prize));
     thunderStrikeEl.setAttribute('aria-hidden','false');
     thunderStrikeEl.classList.add('active');
@@ -445,7 +452,7 @@
       thunderStrikeEl.classList.remove('active');
       thunderStrikeEl.setAttribute('aria-hidden','true');
       thunderStrikeEl.classList.add('hidden');
-    }, 1900);
+    }, 2100);
   }
 
   loadTheme();
