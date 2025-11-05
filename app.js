@@ -136,10 +136,10 @@
 
   function valueTier(value, isSpecial){
     if (isSpecial) return null; // specials visually distinct already
-    if (value < 25) return 'value-tier-1';
-    if (value < 30) return 'value-tier-2';
-    if (value < 40) return 'value-tier-3';
-    if (value < 60) return 'value-tier-4';
+    if (value < 10) return 'value-tier-1';
+    if (value < 15) return 'value-tier-2';
+    if (value < 25) return 'value-tier-3';
+    if (value < 30) return 'value-tier-4';
     if (value < 100) return 'value-tier-5';
     if (value < 150) return 'value-tier-6';
     if (value < 250) return 'value-tier-7';
