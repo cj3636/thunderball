@@ -43,8 +43,8 @@
   function defaultPrizeObject(number, basePrize, isSpecialOverride){
     const cleanValue = parseCurrency(basePrize);
     const isSpecial = typeof isSpecialOverride === 'boolean' ? isSpecialOverride : DEFAULT_SPECIAL_NUMBERS.includes(number);
-    // lastResetDay: day index when a special last reset to base (after a claim when day advanced)
-    return { number, basePrize: cleanValue, isSpecial, isClaimed: false, claimDay: null, lastResetDay: 1 };
+    // accrualDays: number of full day increments applied beyond basePrize since last reset (claim-triggered reset sets to 0)
+    return { number, basePrize: cleanValue, isSpecial, isClaimed: false, claimDay: null, accrualDays: 0 };
   }
 
   function parseCurrency(value){
@@ -125,14 +125,12 @@
 
   function computeDisplayPrize(prize){
     if (!prize.isSpecial) return prize.basePrize;
-    // Golden logic (2025-11-05 clarification):
-    // - Specials accrue +increment per day they start unclaimed.
-    // - If claimed on day D, value freezes for the remainder of day D.
-    // - When advancing to day D+1, that claimed special resets back to base (set lastResetDay = D+1).
-    // - After reset, accrual resumes only for subsequent days it remains unclaimed.
-    if (typeof prize.lastResetDay !== 'number') prize.lastResetDay = 1; // migration safeguard
-    const daysSinceReset = Math.max(0, state.day - prize.lastResetDay); // Day == lastResetDay => 0 accrued days
-    return prize.basePrize + (state.specialIncrement * daysSinceReset);
+    // Golden logic (accrualDays model):
+    // - accrualDays increments by 1 for each day advanced where the prize was NOT claimed the previous day.
+    // - If claimed on day D, accrualDays stays as-is for day D (value frozen), then resets to 0 at start of day D+1.
+    // - After reset (accrualDays=0), future unclaimed days add +1 per day again.
+    if (typeof prize.accrualDays !== 'number') prize.accrualDays = 0; // migration safeguard
+    return prize.basePrize + (state.specialIncrement * prize.accrualDays);
   }
 
   function valueTier(value, isSpecial){
@@ -390,15 +388,18 @@
     if (typeof state.day !== 'number') state.day = 1;
     if (typeof state.specialIncrement !== 'number') state.specialIncrement = 25;
     if (!Array.isArray(state.prizes)) state.prizes = [];
-    // Migration: establish lastResetDay; remove/deprecate wasClaimed semantics
+    // Migration: convert lastResetDay / wasClaimed into accrualDays
     state.prizes.forEach(p=>{
       if (p.isSpecial){
-        if (typeof p.lastResetDay !== 'number') {
-          // If legacy wasClaimed existed and was true, treat current day as last reset to keep base value
-          p.lastResetDay = (p.wasClaimed ? state.day : 1);
+        if (typeof p.accrualDays !== 'number'){
+          if (typeof p.lastResetDay === 'number'){
+            p.accrualDays = Math.max(0, state.day - p.lastResetDay); // recreate accrual from last reset baseline
+          } else {
+            p.accrualDays = 0;
+          }
         }
       }
-      // Clean up legacy flag (optional retain for backward compatibility)
+      if ('lastResetDay' in p) delete p.lastResetDay;
       if ('wasClaimed' in p) delete p.wasClaimed;
     });
     // Constrain to MAX_NUMBER and pad missing numbers
@@ -439,12 +440,20 @@
     buildTickers();
   }
 
-  // Daily board reset: clears claim status; specials claimed on previous day reset to base
+  // Daily board reset & accrual update
+  // Called AFTER state.day is incremented.
+  // For each special:
+  //   If it was claimed on previous day -> reset accrualDays to 0.
+  //   Else -> increment accrualDays by 1 (it survived another unclaimed day).
   function resetBoardForNewDay(){
-    const prevDay = state.day - 1; // we already bumped state.day before calling this
+    const prevDay = state.day - 1;
     state.prizes.forEach(prize=>{
-      if (prize.isSpecial && prize.claimDay === prevDay){
-        prize.lastResetDay = state.day; // reset accrual starting new day
+      if (prize.isSpecial){
+        if (prize.claimDay === prevDay){
+          prize.accrualDays = 0; // reset after claim
+        } else {
+          prize.accrualDays = (typeof prize.accrualDays === 'number' ? prize.accrualDays : 0) + 1;
+        }
       }
       prize.isClaimed = false;
       prize.claimDay = null;
