@@ -4,6 +4,7 @@ html, body { height: 100%; }
 body { font-family: 'Rajdhani', sans-serif; background: radial-gradient(circle at 50% 55%, #0d0f24 0%, #05060f 70%); color: #eef2ff; overflow: hidden; }
 
 :root {
+  /* Revert to original 10-column sizing for larger cells; rows auto-create (75 numbers => 8 rows) */
   --grid-size: 10;
   --cell-gap: 4px;
   --cell-size: calc((min(95vmin, 95vh) - (var(--cell-gap) * (var(--grid-size) - 1))) / var(--grid-size));
@@ -94,7 +95,7 @@ body.hide-sidebars .ticker { visibility: hidden; }
 .visually-hidden { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0 0 0 0) !important; white-space: nowrap !important; border: 0 !important; }
 
 .board-container { flex: 0 0 auto; display: flex; justify-content: center; align-items: center; }
-.board { display: grid; grid-template-columns: repeat(var(--grid-size), var(--cell-size)); grid-template-rows: repeat(var(--grid-size), var(--cell-size)); gap: var(--cell-gap); position: relative; padding: 8px; background: linear-gradient(145deg,#151b38,#0d1124); border-radius: 20px; box-shadow: 0 0 0 2px #2d3f70, 0 0 25px 8px #10152d inset, 0 0 25px #13204f; }
+.board { display: grid; grid-template-columns: repeat(var(--grid-size), var(--cell-size)); grid-auto-rows: var(--cell-size); gap: var(--cell-gap); position: relative; padding: 8px; background: linear-gradient(145deg,#151b38,#0d1124); border-radius: 20px; box-shadow: 0 0 0 2px #2d3f70, 0 0 25px 8px #10152d inset, 0 0 25px #13204f; }
 
 .cell { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(180deg,#1d2546,#10162c 60%); border: 1px solid #26355f; border-radius: 10px; font-size: clamp(0.55rem,0.72vw,0.85rem); font-weight: 600; text-align: center; padding: 4px 4px 6px; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.2s, background 0.3s; overflow: hidden; }
 .cell:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 4px 14px -4px #11d3ff99, 0 0 8px 2px #ff2fd355; }

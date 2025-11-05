@@ -1,9 +1,9 @@
 /* Thunderball Promo App */
 (function() {
-  const DEFAULT_SPECIAL_NUMBERS = [1,25,50,75,100];
+  const DEFAULT_SPECIAL_NUMBERS = [71,72,73,74,75]; // Fallback if CSV lacks isSpecial column
+  const MAX_NUMBER = 75; // New board size
   const STORAGE_KEY = 'thunderballStateV1';
   const DEFAULT_CSV_PATH = 'Thunderball.csv';
-  const BOARD_SIZE = 10; // 10x10
 
   /** State shape
    * {
@@ -40,10 +40,11 @@
 
   function log(...args){ console.log('[Thunderball]', ...args); }
 
-  function defaultPrizeObject(number, basePrize){
+  function defaultPrizeObject(number, basePrize, isSpecialOverride){
     const cleanValue = parseCurrency(basePrize);
-    const isSpecial = DEFAULT_SPECIAL_NUMBERS.includes(number);
-    return { number, basePrize: cleanValue, isSpecial, isClaimed: false, claimDay: null };
+    const isSpecial = typeof isSpecialOverride === 'boolean' ? isSpecialOverride : DEFAULT_SPECIAL_NUMBERS.includes(number);
+    // wasClaimed: persists if a golden (special) number was ever claimed; survives daily board resets
+    return { number, basePrize: cleanValue, isSpecial, isClaimed: false, claimDay: null, wasClaimed: false };
   }
 
   function parseCurrency(value){
@@ -77,43 +78,60 @@
   }
 
   function detectCSVFormat(text){
-    // Basic: expect either rows with prize values in some visual layout; fallback assume simple number,value lines
-    // We'll parse by splitting lines, scanning for numbers 1-100.
+    // Expected: Number,Prize,isSpecial (third optional). Restricts to MAX_NUMBER.
     const lines = text.split(/\r?\n/).filter(l=>l.trim().length);
-    const map = new Map();
-    for(const line of lines){
-      // try patterns: "1,$50" or "1 - $50" or "$50" if lines are ordered
+    let headerParsed = false;
+    let hasIsSpecial = false;
+    const data = new Map(); // number -> { basePrize, isSpecial }
+    for(const rawLine of lines){
+      const line = rawLine.trim();
+      if (!line) continue;
       const parts = line.split(/,|;|\t|\|/).map(p=>p.trim());
+      if (!headerParsed && parts[0].toLowerCase() === 'number'){
+        headerParsed = true;
+        hasIsSpecial = parts.some(p=>p.toLowerCase() === 'isspecial');
+        continue;
+      }
       if (parts.length >= 2 && /^\d{1,3}$/.test(parts[0])){
         const num = parseInt(parts[0],10);
-        if (num>=1 && num<=100){
-          map.set(num, parseCurrency(parts[1]));
+        if (num>=1 && num<=MAX_NUMBER){
+          const prizeVal = parseCurrency(parts[1]);
+          let isSpecial = false;
+          if (hasIsSpecial && parts.length >=3){
+            const flag = parts[2].toLowerCase();
+            isSpecial = ['1','true','yes','y'].includes(flag);
+          }
+          data.set(num, { basePrize: prizeVal, isSpecial });
           continue;
         }
       }
-      // fallback search for number and currency in line
+      // fallback pattern search if no columns matched
       const numMatch = line.match(/\b(\d{1,3})\b/);
       const valMatch = line.match(/\$?\s*([0-9]+(?:\.[0-9]{1,2})?)/);
-      if (numMatch){
+      if (numMatch && valMatch){
         const num = parseInt(numMatch[1],10);
-        if (num>=1 && num<=100 && valMatch){
-          map.set(num, parseCurrency(valMatch[1]));
+        if (num>=1 && num<=MAX_NUMBER && !data.has(num)){
+          data.set(num, { basePrize: parseCurrency(valMatch[1]), isSpecial: false });
         }
       }
     }
-    // Fill missing with 0
     const result = [];
-    for(let i=1;i<=100;i++){
-      result.push(defaultPrizeObject(i, map.has(i)? map.get(i):0));
+    for(let i=1;i<=MAX_NUMBER;i++){
+      const entry = data.get(i);
+      result.push(defaultPrizeObject(i, entry? entry.basePrize:0, entry? entry.isSpecial:undefined));
     }
     return result;
   }
 
   function computeDisplayPrize(prize){
     if (!prize.isSpecial) return prize.basePrize;
-    // Accrue only while unclaimed.
-    const daysActive = prize.isClaimed && prize.claimDay != null ? (prize.claimDay - 1) : (state.day - 1); // day1 = 0 add
-    return prize.basePrize + (state.specialIncrement * daysActive);
+    // Golden (special) number behavior (2025-11-05 + daily reset enhancement):
+    // - Accrues ONLY while never claimed (wasClaimed === false) and currently unclaimed.
+    // - Once first claimed, wasClaimed=true locks value permanently to basePrize across future days.
+    // - Daily board reset (on day advance) clears isClaimed for all numbers but preserves wasClaimed so retired goldens stay at base.
+    if (prize.wasClaimed || prize.isClaimed) return prize.basePrize;
+    const unclaimedDays = state.day - 1; // Day 1 => 0 increments
+    return prize.basePrize + (state.specialIncrement * unclaimedDays);
   }
 
   function valueTier(value, isSpecial){
@@ -182,6 +200,10 @@
     const wasClaimed = prize.isClaimed;
     prize.isClaimed = !prize.isClaimed;
     prize.claimDay = prize.isClaimed ? state.day : null;
+    // Persist golden retirement
+    if (prize.isSpecial && prize.isClaimed){
+      prize.wasClaimed = true;
+    }
     saveState();
     updateBoardValues();
     updateClaimedGridCheckbox(number, prize.isClaimed);
@@ -196,7 +218,7 @@
 
   function buildClaimedGrid(){
     claimedGridEl.innerHTML = '';
-    for(let i=1;i<=100;i++){
+    for(let i=1;i<=MAX_NUMBER;i++){
       const label = document.createElement('label');
       label.title = 'Prize #' + i;
       const input = document.createElement('input');
@@ -225,10 +247,16 @@
   }
 
   function updateDay(newDay){
-    state.day = Math.max(1, parseInt(newDay,10)||1);
+    const targetDay = Math.max(1, parseInt(newDay,10)||1);
+    const advancing = state.day != null && targetDay > state.day;
+    state.day = targetDay;
     inputDay.value = state.day;
     dayIndicatorEl.textContent = 'Day ' + state.day;
-    saveState();
+    if (advancing){
+      resetBoardForNewDay();
+    } else {
+      saveState();
+    }
     updateBoardValues();
     updateStats();
     refreshTickerDays();
@@ -354,6 +382,9 @@
           playThunderStrike(lastClaimedPrize);
         }
       }
+      if (e.key === 'n'){ // advance day shortcut
+        updateDay(state.day + 1);
+      }
     });
   }
 
@@ -362,6 +393,17 @@
     if (typeof state.day !== 'number') state.day = 1;
     if (typeof state.specialIncrement !== 'number') state.specialIncrement = 25;
     if (!Array.isArray(state.prizes)) state.prizes = [];
+    // Migration: add wasClaimed field if missing
+    state.prizes.forEach(p=>{ if (typeof p.wasClaimed !== 'boolean') p.wasClaimed = false; });
+    // Constrain to MAX_NUMBER and pad missing numbers
+    state.prizes = state.prizes.filter(p=>p.number>=1 && p.number<=MAX_NUMBER);
+    if (state.prizes.length < MAX_NUMBER){
+      const existingNums = new Set(state.prizes.map(p=>p.number));
+      for(let i=1;i<=MAX_NUMBER;i++){
+        if (!existingNums.has(i)) state.prizes.push(defaultPrizeObject(i,0));
+      }
+      state.prizes.sort((a,b)=>a.number-b.number);
+    }
   }
 
   function init(){
@@ -384,11 +426,24 @@
         buildBoard(); buildClaimedGrid(); updateStats();
       }).catch(err=>{
         alert('Failed to load default CSV file. Please upload manually. '+err);
-        state = { day:1, specialIncrement:25, prizes: Array.from({length:100}, (_,i)=>defaultPrizeObject(i+1,0)) };
+        state = { day:1, specialIncrement:25, prizes: Array.from({length:MAX_NUMBER}, (_,i)=>defaultPrizeObject(i+1,0)) };
         buildBoard(); buildClaimedGrid(); updateStats();
       });
     }
     buildTickers();
+  }
+
+  // Daily board reset: clears claim status but preserves golden retirement info
+  function resetBoardForNewDay(){
+    state.prizes.forEach(prize=>{
+      if (prize.isSpecial && prize.isClaimed){
+        // Preserve retirement status
+        prize.wasClaimed = true;
+      }
+      prize.isClaimed = false;
+      prize.claimDay = null;
+    });
+    saveState();
   }
 
   function buildTickers(){
