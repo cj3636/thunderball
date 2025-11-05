@@ -243,12 +243,15 @@
 
   function updateDay(newDay){
     const targetDay = Math.max(1, parseInt(newDay,10)||1);
-    const advancing = state.day != null && targetDay > state.day;
+    const oldDay = state.day;
+    const advancing = oldDay != null && targetDay > oldDay;
+    const daysAdvanced = advancing ? (targetDay - oldDay) : 0;
     state.day = targetDay;
     inputDay.value = state.day;
     dayIndicatorEl.textContent = 'Day ' + state.day;
     if (advancing){
-      resetBoardForNewDay();
+      // Pass how many days advanced and previous day start for accurate accrual math
+      resetBoardForNewDay(daysAdvanced, oldDay);
     } else {
       saveState();
     }
@@ -445,18 +448,29 @@
   // For each special:
   //   If it was claimed on previous day -> reset accrualDays to 0.
   //   Else -> increment accrualDays by 1 (it survived another unclaimed day).
-  function resetBoardForNewDay(){
-    const prevDay = state.day - 1;
+  // Enhanced reset to handle multi-day jumps and preserve last claimDay.
+  // daysAdvanced: number of days moved forward (>0)
+  // oldDay: previous state.day before advancement
+  function resetBoardForNewDay(daysAdvanced = 1, oldDay){
+    if (daysAdvanced < 1) { saveState(); return; }
+    const prevDay = oldDay; // The final fully completed day before advancement
     state.prizes.forEach(prize=>{
       if (prize.isSpecial){
+        // If it was claimed on the last completed day, reset then apply remaining survival days beyond that first day.
         if (prize.claimDay === prevDay){
-          prize.accrualDays = 0; // reset after claim
+          // First day after claim does NOT accrue (stays base), subsequent skipped days accrue.
+          const extraSurvivalDays = Math.max(0, daysAdvanced - 1);
+          prize.accrualDays = extraSurvivalDays; // reset to 0 then add extra increments if jumped multiple days
         } else {
-          prize.accrualDays = (typeof prize.accrualDays === 'number' ? prize.accrualDays : 0) + 1;
+          // It survived all advanced days unclaimed; accrue for each.
+          const currentAccrual = (typeof prize.accrualDays === 'number' ? prize.accrualDays : 0);
+          prize.accrualDays = currentAccrual + daysAdvanced;
         }
       }
+      // Board always starts new day(s) with everything unclaimed visually.
       prize.isClaimed = false;
-      prize.claimDay = null;
+      // Preserve claimDay so we can detect if the previous day was a claim when skipping multiple days in future advances.
+      // (No change to prize.claimDay here.)
     });
     saveState();
   }
