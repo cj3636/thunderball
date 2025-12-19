@@ -2,6 +2,27 @@
 
 An offline-friendly, single-page web app to display and manage the Thunderball promo prize board.
 
+## v2 Upgrade Notes
+
+The application has been upgraded to support shuffling of prize values.
+
+### New Features
+
+- **Prize Shuffling:** A new "Shuffle Settings" section in the management panel allows the game host to shuffle the prize values. This can be done for special "Golden Ball" prizes and regular prizes independently.
+- **JSON State Export/Import:** The game state can now be exported and imported as a JSON file. This is the recommended way to back up and restore the game state, as it preserves all data, including the `accrualDays` for special prizes.
+- **Data Migration:** The game state from `thunderball_state_day19.csv` has been migrated to a new format and a shuffled version is available in `thunderball_state_day19_shuffled.json`. This file can be imported into the application to continue the game with the new shuffled prize values.
+
+### How to Use
+
+1.  Open `index.html` in a web browser.
+2.  Open the management panel by pressing the backtick (`) key.
+3.  To load the shuffled game state, click the "Upload CSV/JSON" button and select the `thunderball_state_day19_shuffled.json` file.
+4.  The game will now be on Day 19 with the shuffled prize values.
+
+### Future Features
+
+-   **Server-side State Saving:** A future enhancement could allow saving the game state directly to the web server's local disk, providing a more seamless way to manage the game state across different devices.
+
 ## Features
 - 75-cell stylized prize grid (numbers 1–75) rendered in a 15 x 5 layout with retro 80s neon aesthetic.
 - Special ("Golden") prizes loaded from the CSV `isSpecial` column (fallback list 71–75). They accrue a daily increment (default +$25) ONLY while never claimed.

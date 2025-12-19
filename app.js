@@ -14,6 +14,10 @@
    * }
    */
   let state = null;
+  let shuffleSettings = {
+    shuffleSpecials: true,
+    shuffleRegulars: true,
+  };
 
   // Elements
   const boardEl = document.getElementById('bingoBoard');
@@ -27,10 +31,14 @@
   const btnToggleSidebar = document.getElementById('btnToggleHeader');
   const btnToggleTheme = document.getElementById('btnToggleTheme');
   const btnDownloadState = document.getElementById('btnDownloadState');
+  const btnDownloadStateJSON = document.getElementById('btnDownloadStateJSON');
   const btnRestoreDefault = document.getElementById('btnRestoreDefault');
   const btnClearStorage = document.getElementById('btnClearStorage');
   const fileUpload = document.getElementById('fileUpload');
   const statsContainer = document.getElementById('statsContainer');
+  const btnShuffle = document.getElementById('btnShuffle');
+  const chkShuffleSpecials = document.getElementById('chkShuffleSpecials');
+  const chkShuffleRegulars = document.getElementById('chkShuffleRegulars');
   // Sidebar ticker elements
   const leftTickerTrack = document.getElementById('leftTickerTrack');
   const rightTickerTrack = document.getElementById('rightTickerTrack');
@@ -290,13 +298,55 @@
     `;
   }
 
+  function shufflePrizes() {
+    if (!confirm('Are you sure you want to shuffle the prize values? This cannot be undone easily.')) return;
+
+    const prizeData = state.prizes.map(p => ({
+        basePrize: p.basePrize,
+        isSpecial: p.isSpecial,
+        accrualDays: p.accrualDays || 0
+    }));
+
+    // Fisher-Yates shuffle
+    for (let i = prizeData.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [prizeData[i], prizeData[j]] = [prizeData[j], prizeData[i]];
+    }
+
+    const newPrizes = [];
+    for (let i = 0; i < state.prizes.length; i++) {
+        const originalPrize = state.prizes[i];
+        const newPrizeData = prizeData[i];
+        
+        const newPrize = { ...originalPrize };
+        newPrize.basePrize = newPrizeData.basePrize;
+        newPrize.isSpecial = newPrizeData.isSpecial;
+        newPrize.accrualDays = newPrizeData.accrualDays;
+        
+        // Reset claim status on shuffle
+        newPrize.isClaimed = false;
+        newPrize.claimDay = null;
+        
+        newPrizes.push(newPrize);
+    }
+
+    state.prizes = newPrizes;
+    saveState();
+    buildBoard();
+    buildClaimedGrid();
+    updateStats();
+    log('Prizes shuffled.');
+  }
+
   function downloadStateCSV(){
-    const header = 'Number,Prize,isSpecial,isClaimed\n';
+    const header = 'Number,Prize,isSpecial,isClaimed,basePrize,accrualDays\n';
     const rows = state.prizes.map(p=>[
       p.number,
       computeDisplayPrize(p),
       p.isSpecial?1:0,
-      p.isClaimed?1:0
+      p.isClaimed?1:0,
+      p.basePrize,
+      p.accrualDays || 0
     ].join(','));
     const csv = header + rows.join('\n');
     const blob = new Blob([csv], {type:'text/csv'});
@@ -307,10 +357,42 @@
     setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
   }
 
+  function downloadStateJSON() {
+    const json = JSON.stringify(state, null, 2);
+    const blob = new Blob([json], {type: 'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `thunderball_state_day${state.day}.json`;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+  }
+
   function handleUpload(file){
     const reader = new FileReader();
     reader.onload = e => {
       const text = String(e.target.result);
+      if (file.name.endsWith('.json')) {
+        try {
+          const newState = JSON.parse(text);
+          if (newState && newState.prizes) {
+            state = newState;
+            ensureStateDefaults();
+            saveState();
+            inputDay.value = state.day;
+            inputIncrement.value = state.specialIncrement;
+            dayIndicatorEl.textContent = 'Day ' + state.day;
+            buildBoard();
+            buildClaimedGrid();
+            updateStats();
+            log('State restored from JSON.');
+          } else {
+            alert('Invalid JSON state file.');
+          }
+        } catch (err) {
+          alert('Error parsing JSON file: ' + err);
+        }
+        return;
+      }
       const newPrizes = detectCSVFormat(text);
       state.prizes = newPrizes;
       saveState();
@@ -366,10 +448,18 @@
     btnToggleSidebar.addEventListener('click', toggleSidebar);
     btnToggleTheme.addEventListener('click', toggleTheme);
     btnDownloadState.addEventListener('click', downloadStateCSV);
+    btnDownloadStateJSON.addEventListener('click', downloadStateJSON);
     btnRestoreDefault.addEventListener('click', restoreDefault);
     btnClearStorage.addEventListener('click', clearStorage);
     fileUpload.addEventListener('change', e=>{
       if (e.target.files && e.target.files[0]) handleUpload(e.target.files[0]);
+    });
+    btnShuffle.addEventListener('click', shufflePrizes);
+    chkShuffleSpecials.addEventListener('change', (e) => {
+        shuffleSettings.shuffleSpecials = e.target.checked;
+    });
+    chkShuffleRegulars.addEventListener('change', (e) => {
+        shuffleSettings.shuffleRegulars = e.target.checked;
     });
 
     document.addEventListener('keydown', e=>{
@@ -391,6 +481,15 @@
     if (typeof state.day !== 'number') state.day = 1;
     if (typeof state.specialIncrement !== 'number') state.specialIncrement = 25;
     if (!Array.isArray(state.prizes)) state.prizes = [];
+    if (!state.shuffleSettings) {
+      state.shuffleSettings = {
+        shuffleSpecials: true,
+        shuffleRegulars: true,
+      };
+    }
+    shuffleSettings = state.shuffleSettings;
+    chkShuffleSpecials.checked = shuffleSettings.shuffleSpecials;
+    chkShuffleRegulars.checked = shuffleSettings.shuffleRegulars;
     // Migration: convert lastResetDay / wasClaimed into accrualDays
     state.prizes.forEach(p=>{
       if (p.isSpecial){

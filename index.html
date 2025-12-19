@@ -68,6 +68,14 @@
             </div>
           </section>
           <section>
+            <h3>Shuffle Settings</h3>
+            <div class="buttons-col">
+                <button id="btnShuffle" type="button">Shuffle Prizes Now</button>
+                <label><input type="checkbox" id="chkShuffleSpecials" checked> Shuffle Special Prizes</label>
+                <label><input type="checkbox" id="chkShuffleRegulars" checked> Shuffle Regular Prizes</label>
+            </div>
+          </section>
+          <section>
             <h3>Claimed Prizes</h3>
             <div id="claimedGrid" class="claimed-grid" aria-label="Claimed Prizes Grid of Checkboxes"></div>
           </section>
@@ -75,8 +83,9 @@
             <h3>Backup / Restore</h3>
             <div class="buttons-col">
               <button id="btnDownloadState" type="button">Download Current State CSV</button>
-              <label class="file-upload">Upload CSV
-                <input id="fileUpload" type="file" accept=".csv" />
+              <button id="btnDownloadStateJSON" type="button">Download Current State JSON</button>
+              <label class="file-upload">Upload CSV/JSON
+                <input id="fileUpload" type="file" accept=".csv,.json" />
               </label>
               <button id="btnRestoreDefault" type="button">Restore Default CSV</button>
               <button id="btnClearStorage" type="button">Clear Local Storage</button>
