@@ -39,6 +39,19 @@
   const btnShuffle = document.getElementById('btnShuffle');
   const chkShuffleSpecials = document.getElementById('chkShuffleSpecials');
   const chkShuffleRegulars = document.getElementById('chkShuffleRegulars');
+  // Prize Editor Modal Elements
+  const prizeEditorModalEl = document.getElementById('prizeEditorModal');
+  const prizeEditorTitleEl = document.getElementById('prizeEditorTitle');
+  const prizeEditorFormEl = document.getElementById('prizeEditorForm');
+  const editorPrizeNumberEl = document.getElementById('editorPrizeNumber');
+  const editorBasePrizeEl = document.getElementById('editorBasePrize');
+  const editorIsSpecialEl = document.getElementById('editorIsSpecial');
+  const specialFieldsEl = document.getElementById('specialFields');
+  const editorIsClaimedEl = document.getElementById('editorIsClaimed');
+  const editorClaimDayEl = document.getElementById('editorClaimDay');
+  const editorAccrualDaysEl = document.getElementById('editorAccrualDays');
+  const btnSavePrizeEl = document.getElementById('btnSavePrize');
+  const btnCancelPrizeEditEl = document.getElementById('btnCancelPrizeEdit');
   // Sidebar ticker elements
   const leftTickerTrack = document.getElementById('leftTickerTrack');
   const rightTickerTrack = document.getElementById('rightTickerTrack');
@@ -219,32 +232,83 @@
     }
   }
 
+  function openPrizeEditor(prizeNumber) {
+    const prize = state.prizes.find(p => p.number === prizeNumber);
+    if (!prize) return;
+
+    prizeEditorTitleEl.textContent = `Edit Prize #${prize.number}`;
+    editorPrizeNumberEl.value = prize.number;
+    editorBasePrizeEl.value = prize.basePrize;
+    editorIsSpecialEl.checked = prize.isSpecial;
+    editorIsClaimedEl.checked = prize.isClaimed;
+    editorClaimDayEl.value = prize.claimDay || '';
+    editorAccrualDaysEl.value = prize.accrualDays || 0;
+
+    specialFieldsEl.classList.toggle('hidden', !prize.isSpecial);
+    prizeEditorModalEl.classList.remove('hidden');
+  }
+
+  function closePrizeEditor() {
+    prizeEditorModalEl.classList.add('hidden');
+  }
+
+  function savePrizeFromEditor(e) {
+    e.preventDefault();
+    const prizeNumber = parseInt(editorPrizeNumberEl.value, 10);
+    const prize = state.prizes.find(p => p.number === prizeNumber);
+    if (!prize) return;
+
+    prize.basePrize = parseCurrency(editorBasePrizeEl.value);
+    const oldIsSpecial = prize.isSpecial;
+    prize.isSpecial = editorIsSpecialEl.checked;
+
+    if (prize.isSpecial) {
+      prize.isClaimed = editorIsClaimedEl.checked;
+      const claimDay = parseInt(editorClaimDayEl.value, 10);
+      prize.claimDay = prize.isClaimed && !isNaN(claimDay) && claimDay > 0 ? claimDay : null;
+      const accrualDays = parseInt(editorAccrualDaysEl.value, 10);
+      prize.accrualDays = isNaN(accrualDays) ? 0 : accrualDays;
+    } else {
+      // if it's not special, it can't have accrual days.
+      // isClaimed is handled by the main board click.
+       if (oldIsSpecial) { // if it WAS special
+        prize.accrualDays = 0;
+       }
+    }
+
+    saveState();
+    updateBoardValues();
+    updateStats();
+    buildClaimedGrid(); // Rebuild to reflect claimed status change
+    closePrizeEditor();
+  }
+
   function buildClaimedGrid(){
     claimedGridEl.innerHTML = '';
     for(let i=1;i<=MAX_NUMBER;i++){
-      const label = document.createElement('label');
-      label.title = 'Prize #' + i;
-      const input = document.createElement('input');
-      input.type = 'checkbox';
-      input.value = String(i);
-      input.checked = !!state.prizes.find(p=>p.number===i).isClaimed;
-      const span = document.createElement('span');
-      span.textContent = i;
-      label.appendChild(input); label.appendChild(span);
-      if (input.checked) label.classList.add('checked');
-      input.addEventListener('change', ()=>{
-        toggleClaim(i);
+      const prize = state.prizes.find(p=>p.number===i);
+      const item = document.createElement('div');
+      item.className = 'claimed-grid-item';
+      item.textContent = i;
+      item.title = 'Edit Prize #' + i;
+      item.classList.toggle('claimed', !!prize.isClaimed);
+      item.classList.toggle('special', !!prize.isSpecial);
+
+      item.addEventListener('click', ()=>{
+        openPrizeEditor(i);
       });
-      claimedGridEl.appendChild(label);
+      claimedGridEl.appendChild(item);
     }
   }
 
   function updateClaimedGridCheckbox(number, isChecked){
-    const labels = claimedGridEl.querySelectorAll('label');
-    labels.forEach(l=>{
-      const input = l.querySelector('input');
-      if (parseInt(input.value,10)===number){
-        input.checked = isChecked; l.classList.toggle('checked', isChecked);
+    // This function is no longer used for checkboxes, but we can adapt it to update the item's class
+    const items = claimedGridEl.querySelectorAll('.claimed-grid-item');
+    items.forEach(item => {
+      if (parseInt(item.textContent,10) === number){
+        const prize = state.prizes.find(p=>p.number===number);
+        item.classList.toggle('claimed', isChecked);
+        item.classList.toggle('special', prize.isSpecial);
       }
     });
   }
@@ -460,6 +524,13 @@
     });
     chkShuffleRegulars.addEventListener('change', (e) => {
         shuffleSettings.shuffleRegulars = e.target.checked;
+    });
+
+    // Prize Editor Listeners
+    prizeEditorFormEl.addEventListener('submit', savePrizeFromEditor);
+    btnCancelPrizeEditEl.addEventListener('click', closePrizeEditor);
+    editorIsSpecialEl.addEventListener('change', () => {
+      specialFieldsEl.classList.toggle('hidden', !editorIsSpecialEl.checked);
     });
 
     document.addEventListener('keydown', e=>{

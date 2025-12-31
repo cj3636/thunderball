@@ -46,6 +46,37 @@
       </div>
     </div>
 
+    <!-- Prize Editor Modal -->
+    <div id="prizeEditorModal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <h2 id="prizeEditorTitle">Edit Prize #</h2>
+        <form id="prizeEditorForm">
+          <input type="hidden" id="editorPrizeNumber" />
+          <label>Base Prize ($)
+            <input type="number" id="editorBasePrize" min="0" />
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="editorIsSpecial" /> Is Special
+          </label>
+          <div id="specialFields" class="hidden">
+            <label class="checkbox-label">
+              <input type="checkbox" id="editorIsClaimed" /> Is Claimed
+            </label>
+            <label>Claim Day
+              <input type="number" id="editorClaimDay" min="0" />
+            </label>
+            <label>Accrual Days
+              <input type="number" id="editorAccrualDays" min="0" />
+            </label>
+          </div>
+          <div class="buttons-row">
+            <button type="submit" id="btnSavePrize">Save</button>
+            <button type="button" id="btnCancelPrizeEdit">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <div id="managementPanel" class="mgmt-panel hidden" aria-hidden="true">
       <div class="panel-inner">
         <h2>Management Panel</h2>
