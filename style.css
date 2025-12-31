@@ -167,6 +167,88 @@ body.hide-sidebars .ticker { visibility: hidden; }
 .mgmt-panel h2 { font-family: 'Orbitron', sans-serif; font-weight: 800; letter-spacing: 2px; margin-bottom: 14px; }
 .mgmt-panel h3 { margin: 12px 0 8px; font-size: 1.15rem; text-transform: uppercase; letter-spacing: 1.5px; }
 .mgmt-panel label { display: flex; flex-direction: column; gap: 6px; font-size: 1rem; margin: 8px 0 14px; }
+
+.mgmt-panel .checkbox-label {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  background: #182242;
+  border: 1px solid #4a618d;
+  border-radius: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.25s, border-color 0.25s;
+  margin: 0; /* Reset margin from generic label style */
+  font-weight: 600;
+}
+
+.mgmt-panel .checkbox-label:hover {
+  background: #202d55;
+  border-color: #647baa;
+}
+
+.mgmt-panel .checkbox-label input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #0c1326;
+  margin: 0;
+  font: inherit;
+  color: #8fa4d0;
+  width: 1.25em;
+  height: 1.25em;
+  border: 2px solid currentColor;
+  border-radius: 4px;
+  transform: translateY(-0.075em);
+  display: grid;
+  place-content: center;
+  cursor: pointer;
+}
+
+.mgmt-panel .checkbox-label input[type="checkbox"]::before {
+  content: "";
+  width: 0.7em;
+  height: 0.7em;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em var(--accent);
+  background-color: var(--accent);
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+.mgmt-panel .checkbox-label input[type="checkbox"]:checked::before {
+  transform: scale(1);
+}
+
+.mgmt-panel .checkbox-label input[type="checkbox"]:checked {
+  border-color: var(--accent-alt);
+  color: var(--accent-alt);
+}
+
+.light-theme .mgmt-panel .checkbox-label {
+  background: #e4eaf8;
+  border-color: #b1c6da;
+  color: #1e3a55;
+}
+
+.light-theme .mgmt-panel .checkbox-label:hover {
+  background: #d8e1f3;
+  border-color: #9fb8d3;
+}
+
+.light-theme .mgmt-panel .checkbox-label input[type="checkbox"] {
+  background-color: #f0f6fb;
+  color: #768fab;
+}
+
+.light-theme .mgmt-panel .checkbox-label input[type="checkbox"]:checked {
+  border-color: #005a8d;
+  color: #005a8d;
+}
+
+.light-theme .mgmt-panel .checkbox-label input[type="checkbox"]::before {
+  background-color: #0078bd;
+}
+
 .mgmt-panel input[type=number] { background: #0c1326; color: #fff; border: 1px solid #4a618d; border-radius: 8px; padding: 10px 12px; font-size: 1.05rem; width: 140px; font-weight: 600; }
 .buttons-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
 .buttons-col { display: flex; flex-direction: column; gap: 10px; }
