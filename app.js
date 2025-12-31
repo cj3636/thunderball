@@ -24,6 +24,7 @@
   const dayIndicatorEl = document.getElementById('dayIndicator');
   const inputDay = document.getElementById('inputDay');
   const inputIncrement = document.getElementById('inputIncrement');
+  const inputTickerTitle = document.getElementById('inputTickerTitle');
   const claimedGridEl = document.getElementById('claimedGrid');
   const panelEl = document.getElementById('managementPanel');
   const btnAdvanceDay = document.getElementById('btnAdvanceDay');
@@ -341,6 +342,13 @@
     refreshTickerDays();
   }
 
+  function updateTickerTitle(newTitle) {
+    state.tickerTitle = newTitle || 'THUNDERBALL';
+    inputTickerTitle.value = state.tickerTitle;
+    saveState();
+    refreshTickerTitles();
+  }
+
   function updateStats(){
     const claimed = state.prizes.filter(p=>p.isClaimed).length;
     const total = state.prizes.length;
@@ -444,10 +452,12 @@
             saveState();
             inputDay.value = state.day;
             inputIncrement.value = state.specialIncrement;
+            inputTickerTitle.value = state.tickerTitle;
             dayIndicatorEl.textContent = 'Day ' + state.day;
             buildBoard();
             buildClaimedGrid();
             updateStats();
+            refreshTickerTitles();
             log('State restored from JSON.');
           } else {
             alert('Invalid JSON state file.');
@@ -472,9 +482,12 @@
       const newPrizes = detectCSVFormat(text);
       state.prizes = newPrizes;
       state.day = 1;
+      state.tickerTitle = 'THUNDERBALL';
       inputDay.value = 1;
+      inputTickerTitle.value = 'THUNDERBALL';
       saveState();
       buildBoard(); buildClaimedGrid(); updateStats();
+      refreshTickerTitles();
     }).catch(err=>alert('Failed to load default CSV: '+err));
   }
 
@@ -507,6 +520,7 @@
   function attachEvents(){
     inputDay.addEventListener('change', ()=>updateDay(inputDay.value));
     inputIncrement.addEventListener('change', ()=>updateIncrement(inputIncrement.value));
+    inputTickerTitle.addEventListener('change', ()=>updateTickerTitle(inputTickerTitle.value));
     btnAdvanceDay.addEventListener('click', ()=>updateDay(state.day + 1));
     btnResetDay.addEventListener('click', ()=>updateDay(1));
     btnToggleSidebar.addEventListener('click', toggleSidebar);
@@ -551,6 +565,7 @@
     if (!state) state = {};
     if (typeof state.day !== 'number') state.day = 1;
     if (typeof state.specialIncrement !== 'number') state.specialIncrement = 25;
+    if (typeof state.tickerTitle !== 'string') state.tickerTitle = 'THUNDERBALL';
     if (!Array.isArray(state.prizes)) state.prizes = [];
     if (!state.shuffleSettings) {
       state.shuffleSettings = {
@@ -592,6 +607,7 @@
       ensureStateDefaults();
       inputDay.value = state.day;
       inputIncrement.value = state.specialIncrement;
+      inputTickerTitle.value = state.tickerTitle;
       dayIndicatorEl.textContent = 'Day ' + state.day;
       buildBoard();
       buildClaimedGrid();
@@ -600,13 +616,13 @@
       // Load CSV then init
       fetchDefaultCSV().then(text=>{
         const prizes = detectCSVFormat(text);
-        state = { day:1, specialIncrement:25, prizes, lastUpdated: Date.now() };
+        state = { day:1, specialIncrement:25, tickerTitle: 'THUNDERBALL', prizes, lastUpdated: Date.now() };
         saveState();
-        inputDay.value = 1; inputIncrement.value = 25; dayIndicatorEl.textContent = 'Day 1';
+        inputDay.value = 1; inputIncrement.value = 25; inputTickerTitle.value = 'THUNDERBALL'; dayIndicatorEl.textContent = 'Day 1';
         buildBoard(); buildClaimedGrid(); updateStats();
       }).catch(err=>{
         alert('Failed to load default CSV file. Please upload manually. '+err);
-        state = { day:1, specialIncrement:25, prizes: Array.from({length:MAX_NUMBER}, (_,i)=>defaultPrizeObject(i+1,0)) };
+        state = { day:1, specialIncrement:25, tickerTitle: 'THUNDERBALL', prizes: Array.from({length:MAX_NUMBER}, (_,i)=>defaultPrizeObject(i+1,0)) };
         buildBoard(); buildClaimedGrid(); updateStats();
       });
     }
@@ -669,7 +685,7 @@
     logo.style.backgroundImage = "url('https://lirp.cdn-website.com/77390e66/dms3rep/multi/opt/Max+Casino+logo-100w.png')";
     const title = document.createElement('div');
     title.className = 'title-text';
-    title.textContent = 'THUNDERBALL';
+    title.textContent = state ? state.tickerTitle : 'THUNDERBALL';
     const day = document.createElement('div');
     day.className = 'day-text';
     day.textContent = 'Day ' + (state? state.day: 1);
@@ -681,6 +697,12 @@
   function refreshTickerDays(){
     document.querySelectorAll('.ticker-item .day-text').forEach(el=>{
       el.textContent = 'Day ' + state.day;
+    });
+  }
+
+  function refreshTickerTitles() {
+    document.querySelectorAll('.ticker-item .title-text').forEach(el => {
+      el.textContent = state.tickerTitle;
     });
   }
 
